@@ -2,7 +2,7 @@ using System.IO.Compression;
 
 public class BoardSolver<T>(IBoardInterface<T> board)
 {
-
+    private List<string> solution = new List<string>();
     private bool lastRowInvalidState = false;
     private void MoveOutOfTheAxis(T square)
     {
@@ -141,10 +141,43 @@ public class BoardSolver<T>(IBoardInterface<T> board)
         }
     }
 
+    private void WriteDownMovesEvent(object? sender, OnMoveEventArgs e)
+    {
+        var directionStr = string.Empty;
+        if (e.Direction == Direction.Horizontal)
+        {
+            if (e.Amount > 0)
+            {
+                directionStr = "L";
+            }
+            else
+            {
+                directionStr = "R";
+            }
+        }
+        if (e.Direction == Direction.Vertical)
+        {
+            if (e.Amount > 0)
+            {
+                directionStr = "D";
+            }
+            else
+            {
+                directionStr = "U";
+            }
+        }
+        for (int i = 0; i < e.Amount; i++)
+        {
+            solution.Add(directionStr + e.Column);
+        }
+        
+    }
+
     public string[] GetSolution()
     {
+        board.OnMove += WriteDownMovesEvent;
         SolveAllButLastRow(); // 3% of difficulty
         SolveLastRow(); // 97% of difficulty
-        return Array.Empty<string>();
+        return solution.ToArray();
     }
 }

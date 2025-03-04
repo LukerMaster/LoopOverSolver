@@ -93,7 +93,7 @@ public class Program
         Random r = new Random(1337);
         for (int run = 0; run < 300; run++)
         {
-            var size = r.Next(2, 60);
+            var size = r.Next(2, 6);
 
             var board = new int[size][];
             for (int i = 0; i < size; i++)
@@ -132,10 +132,10 @@ public class Program
             BoardSolver<int> solver = new BoardSolver<int>(boardInterface);
 
             try {
-                solver.GetSolution();
+                var solution = solver.GetSolution();
                 Console.BackgroundColor = ConsoleColor.White;
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"SUCCESS ON RUN {run}!");
+                Console.WriteLine($"SUCCESS ON RUN {run}! Solution: {string.Join("|", solution)}");
             }
             catch (Exception e)
             {

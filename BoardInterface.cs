@@ -3,6 +3,9 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
 {
     private T[][] _board;
     private T[][] _target;
+
+    
+    public event EventHandler<OnMoveEventArgs>? OnMove;
     private (int x, int y) GetPositionOf(T square, T[][] sourceBoard)
     {
         for (int y = 0; y < sourceBoard.Length; y++)
@@ -30,6 +33,7 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
         _board = currentBoard;
         _target = solvedBoard;
     }
+
     public (int x, int y) GetDesiredPositionOf(T square)
     {
         return GetPositionOf(square, _target);
@@ -81,6 +85,7 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
                 Array.Copy(buffer, i, _board[_board.Length - by + i], column, 1);
             }
         }
+        OnMove?.Invoke(this, new OnMoveEventArgs() { Amount = by, Column = column, Direction = direction});
     }
 
     public int GetSize()
