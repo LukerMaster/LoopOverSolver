@@ -4,7 +4,7 @@ public class BoardSolver<T>(IBoardInterface<T> board)
     {
         for (int i = 0; i < board.GetTotalSquareCount() - board.GetSize() /* stop at second to last row*/; i++)
         {
-            var square = board.GetSquareByIndex(i);
+            var square = board.GetSquareByOrder(i);
 
             var current = board.GetPositionOf(square);
             var distance = board.GetDistanceToDesiredOf(square);
@@ -46,6 +46,7 @@ public class BoardSolver<T>(IBoardInterface<T> board)
 
     public string[] GetSolution()
     {
+        SolveAllButLastRow();
         return Array.Empty<string>();
     }
 }

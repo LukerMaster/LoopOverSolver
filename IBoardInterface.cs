@@ -7,5 +7,5 @@ public interface IBoardInterface<T>
     public int GetSize();
     public int GetTotalSquareCount();
     public int GetIndexOf(T square);
-    public T GetSquareByIndex(int index);
+    public T GetSquareByOrder(int index);
 }

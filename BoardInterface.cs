@@ -89,8 +89,8 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
         return GetSize() * GetSize();
     }
 
-    public T GetSquareByIndex(int index)
+    public T GetSquareByOrder(int order)
     {
-        return _board[_board.Length / index][_board.Length % index];
+        return _target[order / _target.Length][order % _target.Length];
     }
 }
