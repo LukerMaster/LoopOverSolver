@@ -86,20 +86,43 @@ public class BoardSolver<T>(IBoardInterface<T> board)
         // At this point, the board may be in completely incorrect state,
         // as this function requires to be called twice to preserve correct order on last column.
     }
+
+    private bool TrySwappingOutOfPlaceSquares()
+    {
+        for (int i = 0; i < board.GetSize(); i++)
+        {
+            if (board.GetDistanceToDesiredOf(board.GetSquareOn(i, board.GetSize() - 1)) != (0, 0)) // if this square is out of place
+            {
+                for (int j = i + 1; j < board.GetSize(); j++)
+                {
+                    if (board.GetSquareOn(j, board.GetSize() - 1)!.Equals(board.GetSquareThatShouldBeOn(i, board.GetSize() - 1)))
+                    {
+                        SwapOnLastRow(i, j);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
     private void SolveLastRow()
     {
         int pairIdx = 0;
 
+        bool isInInvalidState = false; // Swapping needs to be done twice everytime to preserve correctness of the last row.
+
+        var first = board.GetSquareByOrder(board.GetTotalSquareCount() - board.GetSize()); // First square on last row
+        var distance = board.GetDistanceToDesiredOf(first);
+        board.Move(Direction.Horizontal, board.GetSize() - 1, distance.x); // Move the board so the first square is in correct position.
+
         while (!board.IsRowSolved(board.GetSize() - 1))
         {
-            
-            SwapOnLastRow(pairIdx, pairIdx + 1);
-            SwapOnLastRow(pairIdx + 1, pairIdx + 2);
+            if (TrySwappingOutOfPlaceSquares()) isInInvalidState = !isInInvalidState;
 
             pairIdx++;
 
-            var first = board.GetSquareByOrder(board.GetTotalSquareCount() - board.GetSize()); // First square on last row
-            var distance = board.GetDistanceToDesiredOf(first);
+            first = board.GetSquareByOrder(board.GetTotalSquareCount() - board.GetSize()); // First square on last row
+            distance = board.GetDistanceToDesiredOf(first);
             board.Move(Direction.Horizontal, board.GetSize() - 1, distance.x); // Move the board so the first square is in correct position.
 
             if (pairIdx > board.GetSize() * 100)

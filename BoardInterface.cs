@@ -118,4 +118,9 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
     {
         return _board[y][x];
     }
+
+    public T GetSquareThatShouldBeOn(int x, int y)
+    {
+        return _target[y][x];
+    }
 }

@@ -91,9 +91,9 @@ public class Program
     private static void TestRandom()
     {
         Random r = new Random(1337);
-        for (int run = 0; run < 30; run++)
+        for (int run = 0; run < 300; run++)
         {
-            var size = r.Next(5, 8);
+            var size = r.Next(2, 80);
 
             var board = new int[size][];
             for (int i = 0; i < size; i++)

@@ -9,5 +9,6 @@ public interface IBoardInterface<T>
     public int GetIndexOf(T square);
     public T GetSquareByOrder(int index);
     public T GetSquareOn(int x, int y);
+    public T GetSquareThatShouldBeOn(int x, int y);
     public bool IsRowSolved(int row);
 }
