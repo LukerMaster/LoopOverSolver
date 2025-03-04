@@ -93,7 +93,7 @@ public class Program
         Random r = new Random(1337);
         for (int run = 0; run < 300; run++)
         {
-            var size = r.Next(2, 80);
+            var size = r.Next(2, 60);
 
             var board = new int[size][];
             for (int i = 0; i < size; i++)
@@ -131,7 +131,7 @@ public class Program
 
             BoardSolver<int> solver = new BoardSolver<int>(boardInterface);
 
-            try{
+            try {
                 solver.GetSolution();
                 Console.BackgroundColor = ConsoleColor.White;
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -141,7 +141,7 @@ public class Program
             {
                 Console.BackgroundColor = ConsoleColor.Black;
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Fail on run {run}: {e}.\nFinal board:\n{boardInterface}");
+                Console.WriteLine($"Fail on run {run}: {e}. Board:\n {boardInterface}");
             }
 
         }

@@ -3,6 +3,7 @@ using System.IO.Compression;
 public class BoardSolver<T>(IBoardInterface<T> board)
 {
 
+    private bool lastRowInvalidState = false;
     private void MoveOutOfTheAxis(T square)
     {
         var current = board.GetPositionOf(square);
@@ -39,7 +40,6 @@ public class BoardSolver<T>(IBoardInterface<T> board)
         for (int i = 0; i < board.GetTotalSquareCount() - board.GetSize() /* stop at second to last row*/; i++)
         {
             var square = board.GetSquareByOrder(i);
-            var stateOfTheBoard = board.ToString();
 
             MoveOutOfTheAxis(square);
 
@@ -52,15 +52,13 @@ public class BoardSolver<T>(IBoardInterface<T> board)
             board.Move(Direction.Horizontal, current.y, distance.x);
             board.Move(Direction.Vertical, desired.x, distance.y);
 
-            if (board.GetDistanceToDesiredOf(square) != (0, 0))
-            {
-                throw new Exception($"Square {square} ended up not on its place! Board before: \n{stateOfTheBoard}\n\n Board after:\n{board.ToString()}");
-            }
         }
     }
 
     private void SwapOnLastRow(int positionXOnLastRowOfSquare1, int positionXOnLastRowOfSquare2)
     {
+        int verticalDirection = lastRowInvalidState ? -1 : 1;
+
         positionXOnLastRowOfSquare1 = positionXOnLastRowOfSquare1 % board.GetSize();
         positionXOnLastRowOfSquare2 = positionXOnLastRowOfSquare2 % board.GetSize();
 
@@ -72,22 +70,21 @@ public class BoardSolver<T>(IBoardInterface<T> board)
         var distance = desiredX - focusedSquarePosition.x;
 
         board.Move(Direction.Horizontal, board.GetSize() - 1, distance); // Move the desired square to last column
-        board.Move(Direction.Vertical, board.GetSize() - 1, -1); // Swap it with whatever was on the top of first row
+        board.Move(Direction.Vertical, board.GetSize() - 1, -verticalDirection); // Swap it with whatever was on the top of first row
 
         focusedSquarePosition = board.GetPositionOf(symbol2);
         distance = desiredX - focusedSquarePosition.x;
 
         board.Move(Direction.Horizontal, board.GetSize() - 1, distance); // Move the second square to last row
-        board.Move(Direction.Vertical, board.GetSize() - 1, 1); // Swap it back.
+        board.Move(Direction.Vertical, board.GetSize() - 1, verticalDirection); // Swap it back.
 
         board.Move(Direction.Horizontal, board.GetSize() - 1, -distance); // Go back
-        board.Move(Direction.Vertical, board.GetSize() - 1, -1); // Put the original square (borrowed from the first row) back to it's place.
+        board.Move(Direction.Vertical, board.GetSize() - 1, -verticalDirection); // Put the original square (borrowed from the first row) back to it's place.
 
-        // At this point, the board may be in completely incorrect state,
-        // as this function requires to be called twice to preserve correct order on last column.
+        lastRowInvalidState = !lastRowInvalidState;
     }
 
-    private bool TrySwappingOutOfPlaceSquares()
+    private void TrySwappingOutOfPlaceSquaresOnLastRow()
     {
         for (int i = 0; i < board.GetSize(); i++)
         {
@@ -98,44 +95,56 @@ public class BoardSolver<T>(IBoardInterface<T> board)
                     if (board.GetSquareOn(j, board.GetSize() - 1)!.Equals(board.GetSquareThatShouldBeOn(i, board.GetSize() - 1)))
                     {
                         SwapOnLastRow(i, j);
-                        return true;
+                        MoveFirstSquareOnLastRowToItsPosition();
+                        break;
                     }
                 }
             }
         }
-        return false;
     }
-    private void SolveLastRow()
+
+    private void MoveFirstSquareOnLastRowToItsPosition()
     {
-        int pairIdx = 0;
-
-        bool isInInvalidState = false; // Swapping needs to be done twice everytime to preserve correctness of the last row.
-
         var first = board.GetSquareByOrder(board.GetTotalSquareCount() - board.GetSize()); // First square on last row
         var distance = board.GetDistanceToDesiredOf(first);
         board.Move(Direction.Horizontal, board.GetSize() - 1, distance.x); // Move the board so the first square is in correct position.
+    }
+    private void ReshuffleWithBubbleSort()
+    {
+        if (board.GetSize() % 2 == 0)
+        {
+            for (int i = 0; i < board.GetSize() - 1; i++)
+            {
+                SwapOnLastRow(0, 1);
+                MoveFirstSquareOnLastRowToItsPosition();
+            }
+        }
+    }
+    private void SolveLastRow()
+    {
+
+        MoveFirstSquareOnLastRowToItsPosition();
 
         while (!board.IsRowSolved(board.GetSize() - 1))
         {
-            if (TrySwappingOutOfPlaceSquares()) isInInvalidState = !isInInvalidState;
-
-            pairIdx++;
-
-            first = board.GetSquareByOrder(board.GetTotalSquareCount() - board.GetSize()); // First square on last row
-            distance = board.GetDistanceToDesiredOf(first);
-            board.Move(Direction.Horizontal, board.GetSize() - 1, distance.x); // Move the board so the first square is in correct position.
-
-            if (pairIdx > board.GetSize() * 100)
-            {
-                throw new Exception("Cannot solve board.");
-            }
+            TrySwappingOutOfPlaceSquaresOnLastRow();
+            MoveFirstSquareOnLastRowToItsPosition();
+        }
+        if (lastRowInvalidState)
+        {
+            ReshuffleWithBubbleSort();
+        }
+        MoveFirstSquareOnLastRowToItsPosition();
+        if (!board.IsSolved())
+        {
+            throw new Exception("Fail.");
         }
     }
 
     public string[] GetSolution()
     {
-        SolveAllButLastRow();
-        SolveLastRow();
+        SolveAllButLastRow(); // 3% of difficulty
+        SolveLastRow(); // 97% of difficulty
         return Array.Empty<string>();
     }
 }

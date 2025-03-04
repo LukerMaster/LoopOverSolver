@@ -11,4 +11,5 @@ public interface IBoardInterface<T>
     public T GetSquareOn(int x, int y);
     public T GetSquareThatShouldBeOn(int x, int y);
     public bool IsRowSolved(int row);
+    public bool IsSolved();
 }

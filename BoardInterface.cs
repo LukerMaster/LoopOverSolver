@@ -123,4 +123,13 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
     {
         return _target[y][x];
     }
+
+    public bool IsSolved()
+    {
+        for (int i = 0; i < GetSize(); i++)
+        {
+            if (!IsRowSolved(i)) return false;
+        }
+        return true;
+    }
 }
