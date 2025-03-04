@@ -1,4 +1,7 @@
-﻿public class Program
+﻿
+using System.Drawing;
+
+public class Program
 {
     public static void Test5x5()
     {
@@ -80,7 +83,67 @@
     }
     public static void Main()
     {
-        Test4x4();
-        Test5x5();
+        //Test4x4();
+        //Test5x5();
+        TestRandom();
+    }
+
+    private static void TestRandom()
+    {
+        Random r = new Random(1337);
+        for (int run = 0; run < 30; run++)
+        {
+            var size = r.Next(5, 8);
+
+            var board = new int[size][];
+            for (int i = 0; i < size; i++)
+            {
+                board[i] = new int[size];
+            }
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    board[y][x] = (y * size) + x;
+                }
+            }
+
+            var solved = new int[size][];
+            for (int i = 0; i < size; i++)
+            {
+                solved[i] = new int[size];
+            }
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    solved[y][x] = (y * size) + x;
+                }
+            }
+
+            IBoardInterface<int> boardInterface = new BoardInterface<int>(board, solved);
+
+            for (int i = 0; i < r.Next(120); i++)
+            {
+                var direction = r.Next(2) % 2 == 0 ? Direction.Horizontal : Direction.Vertical;
+                boardInterface.Move(direction, r.Next(boardInterface.GetSize() - 1), r.Next(10));
+            }
+
+            BoardSolver<int> solver = new BoardSolver<int>(boardInterface);
+
+            try{
+                solver.GetSolution();
+                Console.BackgroundColor = ConsoleColor.White;
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"SUCCESS ON RUN {run}!");
+            }
+            catch (Exception e)
+            {
+                Console.BackgroundColor = ConsoleColor.Black;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Fail on run {run}: {e}.\nFinal board:\n{boardInterface}");
+            }
+
+        }
     }
 }

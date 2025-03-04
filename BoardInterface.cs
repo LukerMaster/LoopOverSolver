@@ -15,6 +15,16 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
         throw new Exception("Symbol not found!");
     }
 
+    public override string ToString()
+    {
+        var str = string.Empty;
+        for (int y = 0; y < GetSize(); y++)
+        {
+            str += "| " + string.Join(" | ", _board[y]) + " |" + '\n';
+        }
+        return str;
+    }
+
     public BoardInterface(T[][] currentBoard, T[][] solvedBoard)
     {
         _board = currentBoard;
@@ -47,7 +57,7 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
         {
             if (by < 0) by = _board.Length + by; // Moving right is effectively moving left by "negated" amount.
          
-            char[] buffer = new char[by];
+            T[] buffer = new T[by];
             Array.Copy(_board[column], _board.Length - by, buffer, 0, by);
             Array.Copy(_board[column], 0, _board[column], by, _board.Length - by);
             Array.Copy(buffer, _board[column], by);
@@ -57,7 +67,7 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
             by = -by; // Necessary to make UP direction be negative (to align with debug representations).
             if (by < 0) by = _board.Length + by; // Moving up is effectively moving down by "negated" amount.
 
-            char[] buffer = new char[by];
+            T[] buffer = new T[by];
             for (int i = 0; i < by; i++)
             {
                 Array.Copy(_board[i], column, buffer, i, 1);
@@ -91,6 +101,21 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
 
     public T GetSquareByOrder(int order)
     {
-        return _target[order / _target.Length][order % _target.Length];
+        return _target[order / GetSize()][order % GetSize()];
+    }
+
+    public bool IsRowSolved(int row)
+    {
+        for (int i = 0; i < GetSize(); i++)
+        {
+            if (!_board[row][i].Equals(_target[row][i]))
+                return false;
+        }
+        return true;
+    }
+
+    public T GetSquareOn(int x, int y)
+    {
+        return _board[y][x];
     }
 }
