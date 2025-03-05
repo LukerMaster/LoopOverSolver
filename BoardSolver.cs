@@ -1,6 +1,11 @@
 public class BoardSolver<T>(IBoardInterface<T> board)
 {
     private List<string> solution = new List<string>();
+
+    /// <summary>
+    /// Algorithm used to swap squares on last row needs to be done in pairs and run interchangably up/down.
+    /// Doing it only once leaves the field in incorrect state.
+    /// </summary>
     private bool parityError = false;
     private void MoveOutOfTheAxis(T square)
     {
@@ -167,34 +172,26 @@ public class BoardSolver<T>(IBoardInterface<T> board)
     }
     private void ReshuffleLastRowWithBubbleSort()
     {
-        if (board.GetSizeX() % 2 == 0)
+        for (int i = 0; i < board.GetSizeX() - 1; i++)
         {
-            for (int i = 0; i < board.GetSizeX() - 1; i++)
-            {
-                SwapOnLastRow(0, 1);
-                MoveFirstSquareOnLastRowToItsPosition();
-                
-            }
-            return;
-        } 
+            SwapOnLastRow(0, 1);
+            MoveFirstSquareOnLastRowToItsPosition();
+            
+        }
     }
     private void ReshuffleLastColumnWithBubbleSort()
     {
-        if (board.GetSizeY() % 2 == 0 && !board.IsSolved())
+        for (int i = 0; i < board.GetSizeY() - 1; i++)
         {
-            for (int i = 0; i < board.GetSizeY() - 1; i++)
-            {
-                SwapOnLastColumn(0, 1);
-                MoveFirstSquareOnLastColumnToItsPosition();
-            }
-            return;
+            SwapOnLastColumn(0, 1);
+            MoveFirstSquareOnLastColumnToItsPosition();
         }
     }
     private void SolveLastRow()
     {
         MoveFirstSquareOnLastRowToItsPosition();
 
-        while (!board.IsRowSolved(board.GetSizeY() - 1))
+        if (!board.IsRowSolved(board.GetSizeY() - 1))
         {
             TrySwappingOutOfPlaceSquaresOnLastRow();
             MoveFirstSquareOnLastRowToItsPosition();
@@ -203,12 +200,12 @@ public class BoardSolver<T>(IBoardInterface<T> board)
         {
             ReshuffleLastRowWithBubbleSort();
         }
-        while (!board.IsColumnSolved(board.GetSizeX() - 1))
+        if (!board.IsColumnSolved(board.GetSizeX() - 1))
         {
             TrySwappingOutOfPlaceSquaresOnLastColumn();
             MoveFirstSquareOnLastColumnToItsPosition();
         }
-        if (parityError)
+        if (!board.IsSolved() && board.GetSizeY() % 2 == 0)
         {
             ReshuffleLastColumnWithBubbleSort();
         }
