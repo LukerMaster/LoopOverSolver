@@ -11,7 +11,7 @@ public class BoardSolver<T>(IBoardInterface<T> board)
     {
         var current = board.GetPositionOf(square);
         var desired = board.GetDesiredPositionOf(square);
-
+        var tries = 0;
         while (current.x == desired.x || current.y == desired.y)
         {
             // If on the same column, first move out of the way (to the side)
@@ -36,6 +36,10 @@ public class BoardSolver<T>(IBoardInterface<T> board)
                     current = board.GetPositionOf(square);
                 }
             }
+            if (tries > 5)
+            {
+                throw new Exception($"Cannot move {square} out of the way! Is the field solvable?");
+            }
         }
     }
     private void SolveAllButLastRow() // As far as I know it's a "belt" method.
@@ -57,7 +61,7 @@ public class BoardSolver<T>(IBoardInterface<T> board)
 
             if (board.GetDistanceToDesiredOf(square) != (0, 0))
             {
-                Console.WriteLine($"Warning: '{square}' Square ended up on wrong place.");
+                throw new Exception($"'{square}' Square ended up on wrong place.");
             }
         }
     }
@@ -219,11 +223,11 @@ public class BoardSolver<T>(IBoardInterface<T> board)
         {
             if (e.Amount > 0)
             {
-                directionStr = "L";
+                directionStr = "R";
             }
             else
             {
-                directionStr = "R";
+                directionStr = "L";
             }
         }
         if (e.Direction == Direction.Vertical)
@@ -244,6 +248,29 @@ public class BoardSolver<T>(IBoardInterface<T> board)
         
     }
 
+    public void ApplySolution(List<string> sln)
+    {
+        foreach (var command in sln)
+        {
+            var letters = command.ToCharArray();
+            if (letters[0] == 'U')
+            {
+                board.Move(Direction.Vertical, (int)char.GetNumericValue(letters[1]), 1);
+            }
+            else if (letters[0] == 'D')
+            {
+                board.Move(Direction.Vertical, (int)char.GetNumericValue(letters[1]), -1);
+            }
+            else if (letters[0] == 'L')
+            {
+                board.Move(Direction.Horizontal, (int)char.GetNumericValue(letters[1]), 1);
+            }
+            else if (letters[0] == 'R')
+            {
+                board.Move(Direction.Horizontal, (int)char.GetNumericValue(letters[1]), -1);
+            }
+        }
+    }
     public List<string>? GetSolution()
     {
         board.OnMove += WriteDownMovesEvent;

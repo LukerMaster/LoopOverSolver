@@ -79,6 +79,57 @@
 
     }
 
+    public static void TestCodeWars()
+    {
+        var solvedBoard = new []
+        {
+            new [] {'A', 'B', 'C', 'D', 'E', 'F'},
+            new [] {'G', 'H', 'I', 'J', 'K', 'L'},
+            new [] {'M', 'N', 'O', 'P', 'Q', 'R'},
+            new [] {'S', 'T', 'U', 'V', 'W', 'X'},
+            new [] {'Y', 'Z', '0', '1', '2', '3'},
+            new [] {'4', '5', '6', '7', '8', '9'},
+        };
+
+        var mixedUpBoard = new []
+        {
+            new [] {'W', 'C', 'M', 'D', 'J', '0'},
+            new [] {'O', 'R', 'F', 'B', 'A', '1'},
+            new [] {'K', 'N', 'G', 'L', 'Y', '2'},
+            new [] {'P', 'H', 'V', 'S', 'E', '3'},
+            new [] {'T', 'X', 'Q', 'U', 'I', '4'},
+            new [] {'Z', '5', '6', '7', '8', '9'},
+        };
+
+        var mixedUpBoard2 = new []
+        {
+            new [] {'W', 'C', 'M', 'D', 'J', '0'},
+            new [] {'O', 'R', 'F', 'B', 'A', '1'},
+            new [] {'K', 'N', 'G', 'L', 'Y', '2'},
+            new [] {'P', 'H', 'V', 'S', 'E', '3'},
+            new [] {'T', 'X', 'Q', 'U', 'I', '4'},
+            new [] {'Z', '5', '6', '7', '8', '9'},
+        };
+
+        IBoardInterface<char> boardInterface = new BoardInterface<char>(mixedUpBoard, solvedBoard);
+        BoardSolver<char> solver = new BoardSolver<char>(boardInterface);
+        var solution = solver.GetSolution();
+        if (boardInterface.IsSolved())
+            Console.WriteLine("SOLVED!");
+
+        IBoardInterface<char> boardInterfaceTest = new BoardInterface<char>(mixedUpBoard2, solvedBoard);
+        BoardSolver<char> solverTest = new BoardSolver<char>(boardInterfaceTest);
+        solverTest.ApplySolution(solution);
+        if (boardInterfaceTest.IsSolved())
+        {
+            Console.WriteLine("SOLUTION TESTED!");
+        }
+        else
+        {
+            Console.WriteLine($"Final board:\n {boardInterfaceTest}");
+        }
+    }
+
     public static void TestMoving()
     {
         var solvedBoard = new []
@@ -115,7 +166,8 @@
         //Test4x4();
         //Test5x5();
         //TestMoving();
-        TestRandom();
+        TestCodeWars();
+        //TestRandom();
     }
 
     private static void TestRandom()
@@ -152,6 +204,13 @@
                 }
             }
 
+            if (r.Next(10) == 9)
+            {
+                Console.WriteLine("Feeding Unsolvable.");
+                solved[sizeY - 1][sizeX - 1] = 0;
+                solved[0][0] = 0;
+            }
+
 
             IBoardInterface<int> boardInterface = new BoardInterface<int>(board, solved);
 
@@ -174,7 +233,7 @@
             {
                 Console.BackgroundColor = ConsoleColor.Black;
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"ERROR ON RUN {run}: {e}. Board:\n {boardInterface}");
+                Console.WriteLine($"ERROR ON RUN {run}: {e.Message}.");
             }
 
         }
