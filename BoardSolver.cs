@@ -134,6 +134,25 @@ public class BoardSolver<T>(IBoardInterface<T> board)
         }
     }
 
+    private void TrySwappingOutOfPlaceSquaresOnLastColumn()
+    {
+        for (int i = 0; i < board.GetSizeY(); i++)
+        {
+            if (board.GetDistanceToDesiredOf(board.GetSquareOn(board.GetSizeX() - 1, i)) != (0, 0)) // if this square is out of place
+            {
+                for (int j = i + 1; j < board.GetSizeY(); j++)
+                {
+                    if (board.GetSquareOn(board.GetSizeX() - 1, j)!.Equals(board.GetSquareThatShouldBeOn(board.GetSizeX() - 1, i)))
+                    {
+                        SwapOnLastColumn(i, j);
+                        MoveFirstSquareOnLastColumnToItsPosition();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     private void MoveFirstSquareOnLastRowToItsPosition()
     {
         var first = board.GetSquareByOrder(board.GetTotalSquareCount() - board.GetSizeX()); // First square on last row
@@ -146,7 +165,7 @@ public class BoardSolver<T>(IBoardInterface<T> board)
         var distance = board.GetDistanceToDesiredOf(first);
         board.Move(Direction.Vertical, board.GetSizeX() - 1, distance.y); // Move the board so the first square is in correct position.
     }
-    private void ReshuffleWithBubbleSort()
+    private void ReshuffleLastRowWithBubbleSort()
     {
         if (board.GetSizeX() % 2 == 0)
         {
@@ -157,8 +176,11 @@ public class BoardSolver<T>(IBoardInterface<T> board)
                 
             }
             return;
-        }
-        if (board.GetSizeY() % 2 == 0)
+        } 
+    }
+    private void ReshuffleLastColumnWithBubbleSort()
+    {
+        if (board.GetSizeY() % 2 == 0 && !board.IsSolved())
         {
             for (int i = 0; i < board.GetSizeY() - 1; i++)
             {
@@ -179,7 +201,16 @@ public class BoardSolver<T>(IBoardInterface<T> board)
         }
         if (parityError)
         {
-            ReshuffleWithBubbleSort();
+            ReshuffleLastRowWithBubbleSort();
+        }
+        while (!board.IsColumnSolved(board.GetSizeX() - 1))
+        {
+            TrySwappingOutOfPlaceSquaresOnLastColumn();
+            MoveFirstSquareOnLastColumnToItsPosition();
+        }
+        if (parityError)
+        {
+            ReshuffleLastColumnWithBubbleSort();
         }
         MoveFirstSquareOnLastRowToItsPosition();
     }

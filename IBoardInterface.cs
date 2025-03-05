@@ -12,6 +12,7 @@ public interface IBoardInterface<T>
     public T GetSquareOn(int x, int y);
     public T GetSquareThatShouldBeOn(int x, int y);
     public bool IsRowSolved(int row);
+    public bool IsColumnSolved(int column);
     public bool IsSolved();
     public event EventHandler<OnMoveEventArgs> OnMove;
 }

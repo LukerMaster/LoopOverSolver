@@ -121,10 +121,10 @@
     private static void TestRandom()
     {
         Random r = new Random(1337);
-        for (int run = 0; run < 400; run++)
+        for (int run = 0; run < 900; run++)
         {
-            var sizeX = r.Next(2, 25);
-            var sizeY = r.Next(2, 25);
+            var sizeX = r.Next(2, 55);
+            var sizeY = r.Next(2, 55);
 
             var board = new int[sizeY][];
             for (int i = 0; i < sizeY; i++)

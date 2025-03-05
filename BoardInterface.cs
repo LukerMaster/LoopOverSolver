@@ -126,6 +126,15 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
         }
         return true;
     }
+    public bool IsColumnSolved(int column)
+    {
+        for (int i = 0; i < GetSizeY(); i++)
+        {
+            if (!_board[i][column].Equals(_target[i][column]))
+                return false;
+        }
+        return true;
+    }
 
     public T GetSquareOn(int x, int y)
     {
