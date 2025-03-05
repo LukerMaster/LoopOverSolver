@@ -1,7 +1,4 @@
-﻿
-using System.Drawing;
-
-public class Program
+﻿public class Program
 {
     public static void Test5x5()
     {
@@ -81,52 +78,87 @@ public class Program
         boardSolver.GetSolution();
 
     }
+
+    public static void TestMoving()
+    {
+        var solvedBoard = new []
+        {
+            new [] {'A', 'B', 'C', 'D', 'E'},
+            new [] {'F', 'G', 'H', 'I', 'J'},
+            new [] {'K', 'L', 'M', 'N', 'O'},
+            new [] {'P', 'Q', 'R', 'S', 'T'},
+            new [] {'U', 'V', 'W', 'X', 'Y'},
+        };
+
+        var mixedUpBoard = new []
+        {
+            new [] {'A', 'B', 'C', 'D', 'E'},
+            new [] {'F', 'G', 'H', 'I', 'J'},
+            new [] {'K', 'L', 'M', 'N', 'O'},
+            new [] {'P', 'Q', 'R', 'S', 'T'},
+            new [] {'U', 'V', 'W', 'X', 'Y'},
+        };
+
+        IBoardInterface<char> board = new BoardInterface<char>(mixedUpBoard, solvedBoard);
+
+        board.Move(Direction.Vertical, 0, 1);
+        board.Move(Direction.Vertical, 1, 2);
+        board.Move(Direction.Vertical, 2, 3);
+        board.Move(Direction.Vertical, 3, 4);
+        board.Move(Direction.Vertical, 4, 5);
+
+        Console.WriteLine(board);
+
+    }
     public static void Main()
     {
         //Test4x4();
         //Test5x5();
+        //TestMoving();
         TestRandom();
     }
 
     private static void TestRandom()
     {
         Random r = new Random(1337);
-        for (int run = 0; run < 300; run++)
+        for (int run = 0; run < 400; run++)
         {
-            var size = r.Next(2, 6);
+            var sizeX = r.Next(2, 25);
+            var sizeY = r.Next(2, 25);
 
-            var board = new int[size][];
-            for (int i = 0; i < size; i++)
+            var board = new int[sizeY][];
+            for (int i = 0; i < sizeY; i++)
             {
-                board[i] = new int[size];
+                board[i] = new int[sizeX];
             }
-            for (int y = 0; y < size; y++)
+            for (int y = 0; y < sizeY; y++)
             {
-                for (int x = 0; x < size; x++)
+                for (int x = 0; x < sizeX; x++)
                 {
-                    board[y][x] = (y * size) + x;
+                    board[y][x] = (y * sizeX) + x;
                 }
             }
 
-            var solved = new int[size][];
-            for (int i = 0; i < size; i++)
+            var solved = new int[sizeY][];
+            for (int i = 0; i < sizeY; i++)
             {
-                solved[i] = new int[size];
+                solved[i] = new int[sizeX];
             }
-            for (int y = 0; y < size; y++)
+            for (int y = 0; y < sizeY; y++)
             {
-                for (int x = 0; x < size; x++)
+                for (int x = 0; x < sizeX; x++)
                 {
-                    solved[y][x] = (y * size) + x;
+                    solved[y][x] = (y * sizeX) + x;
                 }
             }
+
 
             IBoardInterface<int> boardInterface = new BoardInterface<int>(board, solved);
 
             for (int i = 0; i < r.Next(120); i++)
             {
                 var direction = r.Next(2) % 2 == 0 ? Direction.Horizontal : Direction.Vertical;
-                boardInterface.Move(direction, r.Next(boardInterface.GetSize() - 1), r.Next(10));
+                boardInterface.Move(direction, r.Next(boardInterface.GetSizeX() - 1), r.Next(10));
             }
 
             BoardSolver<int> solver = new BoardSolver<int>(boardInterface);
@@ -135,13 +167,14 @@ public class Program
                 var solution = solver.GetSolution();
                 Console.BackgroundColor = ConsoleColor.White;
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"SUCCESS ON RUN {run}! Solution: {string.Join("|", solution)}");
+                if (!boardInterface.IsSolved())
+                    Console.WriteLine($"FAILED RUN {run}. BOARD {boardInterface.GetSizeX() % 2 == 0} X {boardInterface.GetSizeY() % 2 == 0}.");
             }
             catch (Exception e)
             {
                 Console.BackgroundColor = ConsoleColor.Black;
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Fail on run {run}: {e}. Board:\n {boardInterface}");
+                Console.WriteLine($"ERROR ON RUN {run}: {e}. Board:\n {boardInterface}");
             }
 
         }

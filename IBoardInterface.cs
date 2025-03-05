@@ -4,7 +4,8 @@ public interface IBoardInterface<T>
     public (int x, int y) GetPositionOf(T square);
     public (int x, int y) GetDesiredPositionOf(T square);
     public (int x, int y) GetDistanceToDesiredOf(T square);
-    public int GetSize();
+    public int GetSizeX();
+    public int GetSizeY();
     public int GetTotalSquareCount();
     public int GetIndexOf(T square);
     public T GetSquareByOrder(int index);

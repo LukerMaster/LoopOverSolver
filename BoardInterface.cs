@@ -8,9 +8,9 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
     public event EventHandler<OnMoveEventArgs>? OnMove;
     private (int x, int y) GetPositionOf(T square, T[][] sourceBoard)
     {
-        for (int y = 0; y < sourceBoard.Length; y++)
+        for (int y = 0; y < GetSizeY(); y++)
         {
-            for (int x = 0; x < sourceBoard.Length; x++)
+            for (int x = 0; x < GetSizeX(); x++)
             {
                 if (square.Equals(sourceBoard[y][x])) return (x, y);
             }
@@ -21,7 +21,7 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
     public override string ToString()
     {
         var str = string.Empty;
-        for (int y = 0; y < GetSize(); y++)
+        for (int y = 0; y < GetSizeY(); y++)
         {
             str += "| " + string.Join(" | ", _board[y]) + " |" + '\n';
         }
@@ -53,42 +53,50 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
 
     public void Move(Direction direction, int column, int by)
     {
-        by = by % _board.Length;
-        column = column % _board.Length;
         if (by == 0) return;
 
         if (direction is Direction.Horizontal)
         {
-            if (by < 0) by = _board.Length + by; // Moving right is effectively moving left by "negated" amount.
+            by = by % GetSizeX();
+            column = column % GetSizeY();
+
+            if (by < 0) by = GetSizeX() + by; // Moving right is effectively moving left by "negated" amount.
          
             T[] buffer = new T[by];
-            Array.Copy(_board[column], _board.Length - by, buffer, 0, by);
-            Array.Copy(_board[column], 0, _board[column], by, _board.Length - by);
+            Array.Copy(_board[column], GetSizeX() - by, buffer, 0, by);
+            Array.Copy(_board[column], 0, _board[column], by, GetSizeX() - by);
             Array.Copy(buffer, _board[column], by);
         }
         if (direction is Direction.Vertical)
         {
-            by = -by; // Necessary to make UP direction be negative (to align with debug representations).
-            if (by < 0) by = _board.Length + by; // Moving up is effectively moving down by "negated" amount.
+            by = by % GetSizeY();
+            column = column % GetSizeX();
+
+            if (by < 0) by = GetSizeY() + by; // Moving down is effectively moving up by "negated" amount.
 
             T[] buffer = new T[by];
             for (int i = 0; i < by; i++)
             {
-                Array.Copy(_board[i], column, buffer, i, 1);
+                Array.Copy(_board[i+GetSizeY()-by], column, buffer, i, 1);
             }
-            for (int i = by; i < _board.Length; i++)
+            for (int i = GetSizeY() - by - 1; i >= 0; i--)
             {
-                Array.Copy(_board[i], column, _board[i-by], column, 1);
+                Array.Copy(_board[i], column, _board[i + by], column, 1);
             }
-            for (int i = 0; i < buffer.Length; i++)
+            for (int i = 0; i < by; i++)
             {
-                Array.Copy(buffer, i, _board[_board.Length - by + i], column, 1);
+                Array.Copy(buffer, i, _board[i], column, 1);
             }
         }
         OnMove?.Invoke(this, new OnMoveEventArgs() { Amount = by, Column = column, Direction = direction});
     }
 
-    public int GetSize()
+    public int GetSizeX()
+    {
+        return _board[0].Length;
+    }
+
+    public int GetSizeY()
     {
         return _board.Length;
     }
@@ -96,22 +104,22 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
     public int GetIndexOf(T square)
     {
         var position = GetPositionOf(square, _target);
-        return position.y * GetSize() + position.x;
+        return position.y * GetSizeX() + position.x;
     }
 
     public int GetTotalSquareCount()
     {
-        return GetSize() * GetSize();
+        return GetSizeY() * GetSizeX();
     }
 
     public T GetSquareByOrder(int order)
     {
-        return _target[order / GetSize()][order % GetSize()];
+        return _target[order / GetSizeX()][order % GetSizeX()];
     }
 
     public bool IsRowSolved(int row)
     {
-        for (int i = 0; i < GetSize(); i++)
+        for (int i = 0; i < GetSizeX(); i++)
         {
             if (!_board[row][i].Equals(_target[row][i]))
                 return false;
@@ -131,7 +139,7 @@ public class BoardInterface<T> : IBoardInterface<T> where T : notnull, IEquatabl
 
     public bool IsSolved()
     {
-        for (int i = 0; i < GetSize(); i++)
+        for (int i = 0; i < GetSizeY(); i++)
         {
             if (!IsRowSolved(i)) return false;
         }
